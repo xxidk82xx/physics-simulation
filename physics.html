@@ -1,0 +1,168 @@
+<!doctype html>
+<html>
+<head>
+
+<title>Drawing</title>
+<script>
+    let id
+    let mouseX
+	let mouseY
+	let pmouseX=0
+	let pmouseY=0
+    let BX
+    let BY
+    let start;
+    let duration = 0
+    const fps = 100
+    class physics 
+    {
+        constructor(ctx,canvas,body1X, body1Y, body2X, body2Y) 
+        {
+            this.b1X = body1X;
+            this.b1Y = body1Y;
+            this.b2X = body2X;
+            this.b2Y = body2Y;
+            this.b1VX = 0;
+            this.b1VY = 0;
+            this.b1M = 100000000000000000
+            this.b2VX = 0;
+            this.b2VY = 0;
+            this.b2M = 0.01
+            this.dfX = 0;
+            this.dfY = 0;
+            this.ctx = ctx;
+            this.canvas = canvas;
+            this.gravAcc = 0;
+            this.gravAccX = 0
+            this.gravAccY = 0
+            this.distance = 0
+            this.force = 0
+            this.Gconst = Math.pow(10, -11) * 6.67408
+            
+        }
+        timestep()
+        {
+            
+            ////update the positions of each body
+            //this.b1X = BX;
+            //this.b1Y = BY;
+            render(this.ctx, this.canvas, this.b1X, this.b1Y, this.b2X, this.b2Y);
+            this.gravity();
+            this.b2VX += this.gravAccX * duration;
+            this.b2VY += this.gravAccY * duration;
+            this.b2X += this.b2VX * duration;
+            this.b2Y += this.b2VY * duration;
+        }
+        
+        gravity()
+        {
+            this.dfX = this.b1X - this.b2X;
+            this.dfY = this.b1Y - this.b2Y;
+            this.getAngle()
+            this.getAcc()
+            if(this.angleRad >= 0)
+            {
+                this.gravAccX = this.gravAcc * Math.cos(this.angleRad) * -1
+                this.gravAccY = this.gravAcc * Math.sin(this.angleRad)
+            }
+            else
+            {
+                this.gravAccX = 0
+                this.gravAccY = 0
+            }
+
+        }
+
+        getDistance()
+        {
+            this.distance = Math.sqrt((this.dfX * this.dfX) + (this.dfY * this.dfY))
+        }
+
+        getForce()
+        {
+            this.getDistance()
+            this.force = this.Gconst * ((this.b2M * this.b1M) / (this.distance))
+        }
+
+        getAcc()
+        {
+            this.getForce()
+            this.gravAcc = this.force / this.b2M
+        }
+
+        getAngle()
+        {
+
+            this.angleRad = (Math.atan(Math.abs(this.dfY / this.dfX)))
+            
+            if(this.dfX > 0 && this.dfY <= 0)
+            {
+                this.angleRad += Math.PI
+            }
+            else if(this.dfX > 0 && this.dfY > 0)
+            {
+                this.angleRad = Math.PI - this.angleRad
+            }
+            else if(this.dfX <= 0 && this.dfY < 0)
+            {
+                this.angleRad = 2 * Math.PI - this.angleRad
+            }
+        }
+        
+        
+    }
+    
+    var canvas
+    
+	function loaded(){
+        //code goes here
+        canvas=document.getElementById("myCanvas")
+        var ctx=canvas.getContext("2d")
+        var phys = new physics(ctx, canvas, 400, 400, 400, 500)
+        canvas.addEventListener("mousemove", followMouse,false,phys)
+        
+        id = setInterval(update,1000/fps,phys);
+	}//end of code
+    function update(phys)
+    {
+        start = performance.now();
+        phys.timestep()
+        duration = (performance.now() - start ) / 1000;
+    }
+    function render(ctx, canvas, b1X, b1Y, b2X, b2Y)
+    {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);// clears the canvas
+        ctx.beginPath();
+        ctx.arc(b1X,b1Y,10,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
+        ctx.closePath();
+        ctx.fillStyle="red";
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(b2X,b2Y,10,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
+        ctx.closePath();
+        ctx.fillStyle="black";
+        ctx.fill();
+    }
+    function followMouse(e,phys)
+	{
+        pmouseX = mouseX
+        pmouseY = mouseY
+        mouseX = event.x;
+        mouseY = event.y;
+
+        //var canvas = document.getElementById("canvas");
+
+        mouseX -= canvas.offsetLeft;
+        mouseY -= canvas.offsetTop;
+		BX = mouseX
+		BY = mouseY
+    }
+</script>
+</head>
+
+
+<body onLoad="loaded()">
+<canvas id="myCanvas" width="1000" height="1000"></canvas>
+</body>
+</html>
+
