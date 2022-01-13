@@ -16,23 +16,30 @@
     const fps = 60
     class physics 
     {
-        constructor(ctx,canvas,body1X, body1Y, body2X, body2Y) 
+        constructor(ctx,canvas,body1X, body1Y, body2X, body2Y, body3X, body3Y) 
         {
             this.infB = 
             [
                 [
-                    (Math.pow(10, 16) * 1),     //mass of body 1
-                    10,                          //X velocity of body 1
-                    -80,                          //Y velocity of body 1
-                    body1X,                     //X position of body 1
-                    body1Y                      //Y position of body 1
+                    (Math.pow(10, 16) * 3.978),         //mass of body 1
+                    0,                                  //X velocity of body 1
+                    0,                                  //Y velocity of body 1
+                    body1X,                             //X position of body 1
+                    body1Y                              //Y position of body 1
                 ],
                 [
-                    (Math.pow(10, 16) * 1),     //mass of body 2
-                    -10,                          //X velocity of body 2
-                    80,                          //Y velocity of body 2
-                    body2X,                     //X position of body 2
-                    body2Y                      //Y position of body 2
+                    (Math.pow(10, 13) * 2),             //mass of body 2
+                    0,                                  //X velocity of body 2
+                    (Math.pow(10, 1) * 8.94),           //Y velocity of body 2
+                    body2X,                             //X position of body 2
+                    body2Y                              //Y position of body 2
+                ],
+                [
+                    (Math.pow(10, 1) * 1.4695346),      //mass of body 3
+                    0,                                  //X velocity of body 3
+                    (Math.pow(10, 2) * 1),              //Y velocity of body 3
+                    body3X,                             //X position of body 3
+                    body3Y                              //Y position of body 3
                 ]
             ]
             this.ctx = ctx;
@@ -44,18 +51,32 @@
         {
             
             ////update the positions of each body
-            //this.infB[0][3] = BX;
-            //this.infB[0][4] = BY;
-            render(this.ctx, this.canvas, this.infB[0][3], this.infB[0][4], this.infB[1][3], this.infB[1][4]);
-            const acc1 = this.gravity(this.infB[0][0], this.infB[0][3], this.infB[0][4], this.infB[1][3], this.infB[1][4]);
-            const acc2 = this.gravity(this.infB[1][0], this.infB[1][3], this.infB[1][4], this.infB[0][3], this.infB[0][4]);               
+            render(this.ctx, this.canvas, this.infB[0][3], this.infB[0][4], this.infB[1][3], this.infB[1][4], this.infB[2][3], this.infB[2][4]);
+            const acc12 = this.gravity(this.infB[0][0], this.infB[0][3], this.infB[0][4], this.infB[1][3], this.infB[1][4]);
+            const acc21 = this.gravity(this.infB[1][0], this.infB[1][3], this.infB[1][4], this.infB[0][3], this.infB[0][4]); 
+            const acc31 = this.gravity(this.infB[2][0], this.infB[2][3], this.infB[2][4], this.infB[0][3], this.infB[0][4]); 
+            const acc32 = this.gravity(this.infB[2][0], this.infB[2][3], this.infB[2][4], this.infB[1][3], this.infB[1][4]); 
+            const acc13 = this.gravity(this.infB[0][0], this.infB[0][3], this.infB[0][4], this.infB[2][3], this.infB[2][4]);
+            const acc23 = this.gravity(this.infB[1][0], this.infB[1][3], this.infB[1][4], this.infB[2][3], this.infB[2][4]);  
 
-            this.infB[1][1] += acc1[0] * deltaTime;
-            this.infB[1][2] += acc1[1] * deltaTime;
+            this.infB[2][1] += acc13[0] * deltaTime;
+            this.infB[2][2] += acc13[1] * deltaTime;
+            this.infB[2][1] += acc23[0] * deltaTime;
+            this.infB[2][2] += acc23[1] * deltaTime;
+            this.infB[2][3] += this.infB[2][1] * deltaTime
+            this.infB[2][4] += this.infB[2][2] * deltaTime
+
+            this.infB[1][1] += acc12[0] * deltaTime;
+            this.infB[1][2] += acc12[1] * deltaTime;
+            this.infB[1][1] += acc32[0] * deltaTime;
+            this.infB[1][2] += acc32[1] * deltaTime;
             this.infB[1][3] += this.infB[1][1] * deltaTime
             this.infB[1][4] += this.infB[1][2] * deltaTime
-            this.infB[0][1] += acc2[0] * deltaTime;
-            this.infB[0][2] += acc2[1] * deltaTime;
+
+            this.infB[0][1] += acc21[0] * deltaTime;
+            this.infB[0][2] += acc21[1] * deltaTime;
+            this.infB[0][1] += acc31[0] * deltaTime;
+            this.infB[0][2] += acc31[1] * deltaTime;
             this.infB[0][3] += this.infB[0][1] * deltaTime
             this.infB[0][4] += this.infB[0][2] * deltaTime
         }
@@ -92,11 +113,11 @@
 
         getAngle(x1, y1, x2, y2)
         {
-            const xDifference = x1 - x2//gets X difference between the 2 points specified
-            const yDifference = y1 - y2//gets Y difference between the 2 points specified
-            let angleRad = (Math.atan(Math.abs(yDifference / xDifference))) // gets the angle from 0-90 degrees
+            const xDifference = x1 - x2                                         //gets X difference between the 2 points specified
+            const yDifference = y1 - y2                                         //gets Y difference between the 2 points specified
+            let angleRad = (Math.atan(Math.abs(yDifference / xDifference)))     // gets the angle from 0-90 degrees
             
-            if(xDifference > 0 && yDifference <= 0)//offsets the angle depending on quadrant
+            if(xDifference > 0 && yDifference <= 0)                             //offsets the angle depending on quadrant
             {
                 angleRad += Math.PI
             }
@@ -108,7 +129,7 @@
             {
                 angleRad = 2 * Math.PI - angleRad
             }
-            return angleRad//returns the angle
+            return angleRad //returns the angle
         }
         
         
@@ -120,7 +141,7 @@
         //code goes here
         canvas=document.getElementById("myCanvas")
         var ctx=canvas.getContext("2d")
-        var phys = new physics(ctx, canvas, 480, 400, 400, 400)
+        var phys = new physics(ctx, canvas, 400, 400, 694, 400, 684, 400)
         canvas.addEventListener("mousemove", followMouse,false,phys)
         
         id = setInterval(update,1000/fps,phys);
@@ -131,7 +152,7 @@
         phys.timestep()
         //duration = (performance.now() - start ) / 1000;
     }
-    function render(ctx, canvas, b1X, b1Y, b2X, b2Y)
+    function render(ctx, canvas, b1X, b1Y, b2X, b2Y, b3X, b3Y)
     {
         ctx.clearRect(0, 0, canvas.width, canvas.height);// clears the canvas
         ctx.beginPath();
@@ -140,7 +161,12 @@
         ctx.fillStyle="red";
         ctx.fill();
         ctx.beginPath();
-        ctx.arc(b2X,b2Y,10,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
+        ctx.arc(b2X,b2Y,3,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
+        ctx.closePath();
+        ctx.fillStyle="black";
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(b3X,b3Y,1,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
         ctx.closePath();
         ctx.fillStyle="black";
         ctx.fill();
@@ -167,4 +193,5 @@
 <canvas id="myCanvas" width="1000" height="1000"></canvas>
 </body>
 </html>
+
 
