@@ -12,7 +12,7 @@
     let BX
     let BY
     let start;
-    let deltaTime = 1 / 60
+    let deltaTime = 1 / 30
     const fps = 60
     class physics 
     {
@@ -21,23 +21,23 @@
             this.infB = 
             [
                 [
-                    (Math.pow(10, 16) * 3.978),         //mass of body 1
-                    0,                                  //X velocity of body 1
-                    0,                                  //Y velocity of body 1
+                    (Math.pow(10, 16) * 1),         //mass of body 1
+                    19,                                  //X velocity of body 1
+                    -31,                                  //Y velocity of body 1
                     body1X,                             //X position of body 1
                     body1Y                              //Y position of body 1
                 ],
                 [
-                    (Math.pow(10, 13) * 2),             //mass of body 2
-                    0,                                  //X velocity of body 2
-                    (Math.pow(10, 1) * 8.94),           //Y velocity of body 2
+                    (Math.pow(10, 16) * 1),             //mass of body 2
+                    -40,                                  //X velocity of body 2
+                    61.43,           //Y velocity of body 2
                     body2X,                             //X position of body 2
                     body2Y                              //Y position of body 2
                 ],
                 [
-                    (Math.pow(10, 1) * 1.4695346),      //mass of body 3
-                    0,                                  //X velocity of body 3
-                    (Math.pow(10, 2) * 1),              //Y velocity of body 3
+                    (Math.pow(10, 16) * 1),      //mass of body 3
+                    19.7,                                  //X velocity of body 3
+                    -31.4,              //Y velocity of body 3
                     body3X,                             //X position of body 3
                     body3Y                              //Y position of body 3
                 ]
@@ -141,7 +141,7 @@
         //code goes here
         canvas=document.getElementById("myCanvas")
         var ctx=canvas.getContext("2d")
-        var phys = new physics(ctx, canvas, 400, 400, 694, 400, 684, 400)
+        var phys = new physics(ctx, canvas, 200, 400, 400, 400, 600, 400)
         canvas.addEventListener("mousemove", followMouse,false,phys)
         
         id = setInterval(update,1000/fps,phys);
@@ -161,12 +161,12 @@
         ctx.fillStyle="red";
         ctx.fill();
         ctx.beginPath();
-        ctx.arc(b2X,b2Y,3,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
+        ctx.arc(b2X,b2Y,10,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
         ctx.closePath();
         ctx.fillStyle="black";
         ctx.fill();
         ctx.beginPath();
-        ctx.arc(b3X,b3Y,1,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
+        ctx.arc(b3X,b3Y,10,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
         ctx.closePath();
         ctx.fillStyle="black";
         ctx.fill();
@@ -193,5 +193,4 @@
 <canvas id="myCanvas" width="1000" height="1000"></canvas>
 </body>
 </html>
-
 
