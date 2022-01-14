@@ -4,87 +4,92 @@
 
 <title>Drawing</title>
 <script>
+    //global variables
     let id
-    let mouseX
-	let mouseY
-	let pmouseX=0
-	let pmouseY=0
-    let BX
-    let BY
     let start;
     let deltaTime = 1 / 60
+    let phys
+    let pause = true
+    let positions = [[0,0]]
     const fps = 60
+    
     class physics 
     {
         constructor(ctx,canvas,body1X, body1Y, body2X, body2Y, body3X, body3Y) 
         {
-            this.infB = 
+            //contains info for all of the bodies
+            this.infB = //stores info for all of the bodies
             [
                 [
                     (Math.pow(10, 16) * 3.978),         //mass of body 1
                     0,                                  //X velocity of body 1
                     0,                                  //Y velocity of body 1
                     body1X,                             //X position of body 1
-                    body1Y                              //Y position of body 1
+                    body1Y,                             //Y position of body 1
+                    10                                  //diameter of object
                 ],
                 [
-                    (Math.pow(10, 13) * 2),             //mass of body 2
+                    (Math.pow(10, 13) * 1),             //mass of body 2
                     0,                                  //X velocity of body 2
-                    (Math.pow(10, 1) * 8.94),           //Y velocity of body 2
+                    (Math.pow(10, 1) * 9.94),           //Y velocity of body 2
                     body2X,                             //X position of body 2
-                    body2Y                              //Y position of body 2
+                    body2Y,                             //Y position of body 2
+                    3                                   //diameter of object
                 ],
                 [
-                    (Math.pow(10, 1) * 1.4695346),      //mass of body 3
+                    (Math.pow(10, 1) * 1.9695346),      //mass of body 3
                     0,                                  //X velocity of body 3
-                    (Math.pow(10, 2) * 1),              //Y velocity of body 3
+                    (Math.pow(10, 2) * 1.08),           //Y velocity of body 3
                     body3X,                             //X position of body 3
-                    body3Y                              //Y position of body 3
+                    body3Y,                             //Y position of body 3
+                    1                                   //diameter of object
                 ]
             ]
             this.ctx = ctx;
             this.canvas = canvas;
             this.Gconst = Math.pow(10, -11) * 6.67408
-            
+            render(this.ctx, this.canvas, this.infB[0][3], this.infB[0][4], this.infB[1][3], this.infB[1][4], this.infB[2][3], this.infB[2][4]);//renders all of the objects
         }
         timestep()
         {
             
-            ////update the positions of each body
-            render(this.ctx, this.canvas, this.infB[0][3], this.infB[0][4], this.infB[1][3], this.infB[1][4], this.infB[2][3], this.infB[2][4]);
-            const acc12 = this.gravity(this.infB[0][0], this.infB[0][3], this.infB[0][4], this.infB[1][3], this.infB[1][4]);
-            const acc21 = this.gravity(this.infB[1][0], this.infB[1][3], this.infB[1][4], this.infB[0][3], this.infB[0][4]); 
-            const acc31 = this.gravity(this.infB[2][0], this.infB[2][3], this.infB[2][4], this.infB[0][3], this.infB[0][4]); 
-            const acc32 = this.gravity(this.infB[2][0], this.infB[2][3], this.infB[2][4], this.infB[1][3], this.infB[1][4]); 
-            const acc13 = this.gravity(this.infB[0][0], this.infB[0][3], this.infB[0][4], this.infB[2][3], this.infB[2][4]);
-            const acc23 = this.gravity(this.infB[1][0], this.infB[1][3], this.infB[1][4], this.infB[2][3], this.infB[2][4]);  
+            
+            render(this.ctx, this.canvas, this.infB[0][3], this.infB[0][4], this.infB[1][3], this.infB[1][4], this.infB[2][3], this.infB[2][4]);//renders all of the objects
+            
+            for(this.i = 0; this.i < this.infB.length; this.i++)
+            {
+                for(this.j = 0; this.j < this.infB.length; this.j++)
+                {
+                    if(this.j != this.i)
+                    {
+                        var acc = this.gravity(this.j, this.i) // get the acceleration on an object
 
-            this.infB[2][1] += acc13[0] * deltaTime;
-            this.infB[2][2] += acc13[1] * deltaTime;
-            this.infB[2][1] += acc23[0] * deltaTime;
-            this.infB[2][2] += acc23[1] * deltaTime;
-            this.infB[2][3] += this.infB[2][1] * deltaTime
-            this.infB[2][4] += this.infB[2][2] * deltaTime
-
-            this.infB[1][1] += acc12[0] * deltaTime;
-            this.infB[1][2] += acc12[1] * deltaTime;
-            this.infB[1][1] += acc32[0] * deltaTime;
-            this.infB[1][2] += acc32[1] * deltaTime;
-            this.infB[1][3] += this.infB[1][1] * deltaTime
-            this.infB[1][4] += this.infB[1][2] * deltaTime
-
-            this.infB[0][1] += acc21[0] * deltaTime;
-            this.infB[0][2] += acc21[1] * deltaTime;
-            this.infB[0][1] += acc31[0] * deltaTime;
-            this.infB[0][2] += acc31[1] * deltaTime;
-            this.infB[0][3] += this.infB[0][1] * deltaTime
-            this.infB[0][4] += this.infB[0][2] * deltaTime
+                        // apply that acceleration to speed
+                        this.infB[this.i][1] += acc[0] * deltaTime
+                        this.infB[this.i][2] += acc[1] * deltaTime
+                        //check collisions
+                        if(this.getDistance(this.infB[this.i][3] - this.infB[this.j][3], this.infB[this.i][4] - this.infB[this.j][4]) <= this.infB[this.i][5])
+                        {
+                            this.collision(this.i, this.j);
+                        }
+                    }
+                }
+            }
+            
+            // applies the speed to affect the position of the objects
+            for(this.i = 0; this.i < this.infB.length; this.i++)
+            {
+                this.infB[this.i][3] += this.infB[this.i][1] * deltaTime
+                this.infB[this.i][4] += this.infB[this.i][2] * deltaTime
+            }
         }
         
-        gravity(m1, x1, y1, x2, y2)
+        gravity(b1, b2)//calculates x and y accelerations of gravity
         {
-            const acc = this.getAcc(m1, x1, y1, x2, y2)
-            const angle = this.getAngle(x1, y1, x2, y2)
+            const acc = this.getAcc(this.infB[b1][0], this.infB[b1][3], this.infB[b1][4], this.infB[b2][3], this.infB[b2][4])//get acceleration
+            const angle = this.getAngle(this.infB[b1][3], this.infB[b1][4], this.infB[b2][3], this.infB[b2][4])//get angle
+
+            //convert angle and acceleration to angle
             if(angle >= 0)
             {
                 return [acc * Math.cos(angle) * -1, //x acceleration
@@ -96,22 +101,36 @@
             }
         }
 
-        getDistance(xDifference, yDifference)
+        collision(b1, b2)
+        {
+            if(this.infB[b1][0] > this.infB[b2][0])
+            {
+                this.infB[b1][0] += this.infB[b2][0]
+                this.infB.splice(b2,b2)
+            }
+            else
+            {
+                this.infB[b2][0] += this.infB[b1][0]
+                this.infB.splice(b1,b1)
+            }
+        }
+
+        getDistance(xDifference, yDifference)//gets distance between 2 objects
         {
             return Math.sqrt(Math.pow(xDifference, 2) + Math.pow(yDifference, 2))
         }
 
-        getForce(m1, x1, y1, m2, x2, y2)
+        getForce(m1, x1, y1, m2, x2, y2)// gets force between two objects(not used)
         {
             return this.Gconst * ((m2 * m1) / math.pow(this.getDistance(x1 - x2, y1 - y2), 2))
         }
 
-        getAcc(m1, x1, y1, x2, y2)
+        getAcc(m1, x1, y1, x2, y2)//gets acceleration between 2 bodies
         {
             return this.Gconst * ((m1) / Math.pow(this.getDistance(x1 - x2, y1 - y2), 2))
         }
 
-        getAngle(x1, y1, x2, y2)
+        getAngle(x1, y1, x2, y2)//gets angle from body 1 to 2
         {
             const xDifference = x1 - x2                                         //gets X difference between the 2 points specified
             const yDifference = y1 - y2                                         //gets Y difference between the 2 points specified
@@ -132,28 +151,79 @@
             return angleRad //returns the angle
         }
         
+         render(ctx, canvas, b1X, b1Y, b2X, b2Y, b3X, b3Y)
+        {
+            positions.push([b3X, b3Y])
+            ctx.clearRect(0, 0, canvas.width, canvas.height);// clears the canvas
+            ctx.beginPath();
+            ctx.arc(b1X,b1Y,10,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
+            ctx.closePath();
+            ctx.fillStyle="red";
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(b2X,b2Y,3,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
+            ctx.closePath();
+            ctx.fillStyle="black";
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(b3X,b3Y,1,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
+            ctx.closePath();
+            ctx.fillStyle="black";
+            ctx.fill();
+        
+            for(i = 0; i < positions.length; i++)
+            {
+                ctx.beginPath();
+                ctx.arc(positions[i][0],positions[i][1],1,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
+                ctx.closePath();
+                ctx.fillStyle="black";
+                ctx.fill();
+            }
+        }
         
     }
     
     var canvas
-    
+    var ctx
 	function loaded(){
         //code goes here
         canvas=document.getElementById("myCanvas")
-        var ctx=canvas.getContext("2d")
-        var phys = new physics(ctx, canvas, 400, 400, 694, 400, 684, 400)
-        canvas.addEventListener("mousemove", followMouse,false,phys)
+        ctx=canvas.getContext("2d")
+        phys = new physics(ctx, canvas, 400, 400, 694, 400, 684, 400)
         
-        id = setInterval(update,1000/fps,phys);
+        id = setInterval(update,1000/fps);
 	}//end of code
-    function update(phys)
+    function update()
     {
-        //start = performance.now();
-        phys.timestep()
-        //duration = (performance.now() - start ) / 1000;
+        if(!pause)phys.timestep()
     }
+
+    function objAdd()
+    {
+
+        let velX = document.getElementById('txtXVel').value * 1
+        let velY = document.getElementById('txtYVel').value * 1
+        let posX = document.getElementById('txtXPos').value * 1
+        let posY = document.getElementById('txtYPos').value * 1
+        let obj = document.getElementById('txtObj').value * 1
+
+        if(!(obj))
+
+        if(velX)phys.infB[obj][1] = velX
+        if(velY)phys.infB[obj][2] = velY
+        if(posX)phys.infB[obj][3] = posX
+        if(posY)phys.infB[obj][4] = posY
+        render(phys.ctx, phys.canvas, phys.infB[0][3], phys.infB[0][4], phys.infB[1][3], phys.infB[1][4], phys.infB[2][3], phys.infB[2][4]);//renders all of the objects
+    }
+
+    function btnPause()
+    {
+        pause = !pause
+    }
+
     function render(ctx, canvas, b1X, b1Y, b2X, b2Y, b3X, b3Y)
     {
+        positions.push([b3X, b3Y])
         ctx.clearRect(0, 0, canvas.width, canvas.height);// clears the canvas
         ctx.beginPath();
         ctx.arc(b1X,b1Y,10,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
@@ -170,20 +240,15 @@
         ctx.closePath();
         ctx.fillStyle="black";
         ctx.fill();
-    }
-    function followMouse(e,phys)
-	{
-        pmouseX = mouseX
-        pmouseY = mouseY
-        mouseX = event.x;
-        mouseY = event.y;
 
-        //var canvas = document.getElementById("canvas");
-
-        mouseX -= canvas.offsetLeft;
-        mouseY -= canvas.offsetTop;
-		BX = mouseX
-		BY = mouseY
+        for(i = 0; i < positions.length; i++)
+        {
+            ctx.beginPath();
+            ctx.arc(positions[i][0],positions[i][1],1,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
+            ctx.closePath();
+            ctx.fillStyle="black";
+            ctx.fill();
+        }
     }
 </script>
 </head>
@@ -192,6 +257,49 @@
 <body onLoad="loaded()">
 <canvas id="myCanvas" width="1000" height="1000"></canvas>
 </body>
+<body>
+    <p>
+        <label for="txtObj">object to change</label>
+        <input type="text" name="txtObj" id="txtObj">
+        <label for="txt2">
+            <br>
+            <br>
+        </label>
+
+        <label for="txtXPos">X position</label>
+        <input type="text" name="txtXPos" id="txtXPos">
+        <label for="txt2">
+            <br>
+            <br>
+        </label>
+
+        <label for="txtYPos">Y position</label>
+        <input type="text" name="txtYPos" id="txtYPos">
+        <label for="txt2">
+            <br>
+            <br>
+        </label>
+
+        <label for="txtXVel">X velocity</label>
+        <input type="text" name="txtXVel" id="txtXVel">
+        <label for="txt2">
+            <br>
+          <br>
+        </label>
+        <label for="txtYVel">Y velocity</label>
+        <input type="text" name="txtYVel" id="txtYVel">
+        <label for="txt2">
+            <br>
+            <br>
+        </label>
+    </p>
+    
+      <input onClick="objAdd()" type="button" name="button" id="button" value="set">
+    </p>
+    </p>
+
+    <input onClick="btnPause()" type="button" name="button" id="button" value="pause">
+    </p>
+    <p>&nbsp; </p>
+    </body>
 </html>
-
-
