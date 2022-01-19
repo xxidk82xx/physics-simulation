@@ -10,7 +10,6 @@
     let deltaTime = 1 / 60
     let phys
     let pause = true
-    let positions = [[0,0]]
     const fps = 60
     
     class physics 
@@ -26,7 +25,9 @@
                     0,                                  //Y velocity of body 1
                     body1X,                             //X position of body 1
                     body1Y,                             //Y position of body 1
-                    10                                  //diameter of object
+                    10,                                 //diameter of object
+                    '#ff0000',                          //colour of object
+                    true                                //is fixed
                 ],
                 [
                     (Math.pow(10, 13) * 1),             //mass of body 2
@@ -34,7 +35,9 @@
                     (Math.pow(10, 1) * 9.94),           //Y velocity of body 2
                     body2X,                             //X position of body 2
                     body2Y,                             //Y position of body 2
-                    3                                   //diameter of object
+                    5,                                  //diameter of object
+                    '#000000',                          //colour of object
+                    false                               //is fixed
                 ],
                 [
                     (Math.pow(10, 1) * 1.9695346),      //mass of body 3
@@ -42,19 +45,21 @@
                     (Math.pow(10, 2) * 1.08),           //Y velocity of body 3
                     body3X,                             //X position of body 3
                     body3Y,                             //Y position of body 3
-                    1                                   //diameter of object
+                    1,                                  //diameter of object
+                    '#000000',                          //colour of object
+                    false                               //is fixed
                 ]
             ]
             this.ctx = ctx;
             this.canvas = canvas;
             this.Gconst = Math.pow(10, -11) * 6.67408
-            render(this.ctx, this.canvas, this.infB[0][3], this.infB[0][4], this.infB[1][3], this.infB[1][4], this.infB[2][3], this.infB[2][4]);//renders all of the objects
+            this.render(this.ctx, this.canvas);//renders all of the objects
         }
         timestep()
         {
             
             
-            render(this.ctx, this.canvas, this.infB[0][3], this.infB[0][4], this.infB[1][3], this.infB[1][4], this.infB[2][3], this.infB[2][4]);//renders all of the objects
+            this.render(this.ctx, this.canvas);//renders all of the objects
             
             for(this.i = 0; this.i < this.infB.length; this.i++)
             {
@@ -68,7 +73,7 @@
                         this.infB[this.i][1] += acc[0] * deltaTime
                         this.infB[this.i][2] += acc[1] * deltaTime
                         //check collisions
-                        if(this.getDistance(this.infB[this.i][3] - this.infB[this.j][3], this.infB[this.i][4] - this.infB[this.j][4]) <= this.infB[this.i][5])
+                        if(this.getDistance(this.infB[this.i][3] - this.infB[this.j][3], this.infB[this.i][4] - this.infB[this.j][4]) <= this.infB[this.i][5] + this.infB[this.j][5])
                         {
                             this.collision(this.i, this.j);
                         }
@@ -79,8 +84,8 @@
             // applies the speed to affect the position of the objects
             for(this.i = 0; this.i < this.infB.length; this.i++)
             {
-                this.infB[this.i][3] += this.infB[this.i][1] * deltaTime
-                this.infB[this.i][4] += this.infB[this.i][2] * deltaTime
+                if(!this.infB[this.i][7]) this.infB[this.i][3] += this.infB[this.i][1] * deltaTime
+                if(!this.infB[this.i][7]) this.infB[this.i][4] += this.infB[this.i][2] * deltaTime
             }
         }
         
@@ -103,15 +108,19 @@
 
         collision(b1, b2)
         {
-            if(this.infB[b1][0] > this.infB[b2][0])
+            if(this.infB[b1][0] > this.infB[b2][0])//checks what body is bigger
             {
-                this.infB[b1][0] += this.infB[b2][0]
-                this.infB.splice(b2,b2)
+                this.infB[b1][0] += this.infB[b2][0]//adds the bodies mass
+                this.infB[b1][5] = Math.sqrt((this.infB[b2][5] * this.infB[b2][5]) + (this.infB[b1][5] * this.infB[b1][5]))//adds the bodies 
+                //this.infB[b2][5] += this.infB[b1][5]
+                this.infB.splice(b2,1)
             }
             else
             {
                 this.infB[b2][0] += this.infB[b1][0]
-                this.infB.splice(b1,b1)
+                this.infB[b2][5] = Math.sqrt((this.infB[b2][5] * this.infB[b2][5]) + (this.infB[b1][5] * this.infB[b1][5]))
+                //this.infB[b2][5] += this.infB[b1][5]
+                this.infB.splice(b1,1)
             }
         }
 
@@ -151,32 +160,15 @@
             return angleRad //returns the angle
         }
         
-         render(ctx, canvas, b1X, b1Y, b2X, b2Y, b3X, b3Y)
+        render(ctx, canvas)
         {
-            positions.push([b3X, b3Y])
             ctx.clearRect(0, 0, canvas.width, canvas.height);// clears the canvas
-            ctx.beginPath();
-            ctx.arc(b1X,b1Y,10,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
-            ctx.closePath();
-            ctx.fillStyle="red";
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(b2X,b2Y,3,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
-            ctx.closePath();
-            ctx.fillStyle="black";
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(b3X,b3Y,1,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
-            ctx.closePath();
-            ctx.fillStyle="black";
-            ctx.fill();
-        
-            for(i = 0; i < positions.length; i++)
+            for(this.i = 0; this.i < this.infB.length; this.i++)
             {
                 ctx.beginPath();
-                ctx.arc(positions[i][0],positions[i][1],1,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
+                ctx.arc(this.infB[this.i][3],this.infB[this.i][4],this.infB[this.i][5],0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
                 ctx.closePath();
-                ctx.fillStyle="black";
+                ctx.fillStyle=this.infB[this.i][6];
                 ctx.fill();
             }
         }
@@ -189,73 +181,73 @@
         //code goes here
         canvas=document.getElementById("myCanvas")
         ctx=canvas.getContext("2d")
-        phys = new physics(ctx, canvas, 400, 400, 694, 400, 684, 400)
+        phys = new physics(ctx, canvas, 400, 400, 694, 400, 684, 400)//initialises the physics engine
         
-        id = setInterval(update,1000/fps);
+        id = setInterval(update,1000/fps);//fps = framerate
 	}//end of code
     function update()
     {
-        if(!pause)phys.timestep()
+        if(!pause)phys.timestep()//check if game is paused
     }
 
     function objAdd()
     {
-
-        let velX = document.getElementById('txtXVel').value * 1
-        let velY = document.getElementById('txtYVel').value * 1
-        let posX = document.getElementById('txtXPos').value * 1
-        let posY = document.getElementById('txtYPos').value * 1
-        let obj = document.getElementById('txtObj').value * 1
-
-        if(!(obj))
-
-        if(velX)phys.infB[obj][1] = velX
-        if(velY)phys.infB[obj][2] = velY
-        if(posX)phys.infB[obj][3] = posX
-        if(posY)phys.infB[obj][4] = posY
-        render(phys.ctx, phys.canvas, phys.infB[0][3], phys.infB[0][4], phys.infB[1][3], phys.infB[1][4], phys.infB[2][3], phys.infB[2][4]);//renders all of the objects
+        //gets values from text boxes
+        let velX = document.getElementById('txtXVel').value
+        let velY = document.getElementById('txtYVel').value
+        let posX = document.getElementById('txtXPos').value
+        let posY = document.getElementById('txtYPos').value
+        let mass = document.getElementById('txtMass').value
+        let radi = document.getElementById('txtRad').value
+        let obj = document.getElementById('txtObj').value
+        if  
+        (//checks if inputs are strings
+            (parseInt(velX) ||
+            parseInt(velY) ||
+            parseInt(posX) ||
+            parseInt(posY) ||
+            parseInt(mass) ||
+            parseInt(radi)) &&
+            phys.infB.length - 1 < obj//checks if you are trying to add a new object
+        ) 
+        {//adds new object
+            phys.infB.push([])
+            obj = phys.infB.length - 1
+            phys.infB[obj].push(
+                
+                    parseInt(mass), 
+                    parseInt(velX), 
+                    parseInt(velY), 
+                    parseInt(posX), 
+                    parseInt(posY), 
+                    parseInt(radi),
+                    '#000000'
+                )
+        }
+        else
+        {
+            //changes the values of the object to be changed
+            if(mass != 'u')phys.infB[obj][0] = parseInt(mass)
+            if(velX != 'u')phys.infB[obj][1] = parseInt(velX)
+            if(velY != 'u')phys.infB[obj][2] = parseInt(velY)
+            if(posX != 'u')phys.infB[obj][3] = parseInt(posX)
+            if(posY != 'u')phys.infB[obj][4] = parseInt(posY)
+            if(radi != 'u')phys.infB[obj][5] = parseInt(radi)
+        }
+        phys.render(ctx, canvas)
     }
 
     function btnPause()
     {
-        pause = !pause
+        pause = !pause//pauses the simulation
     }
 
-    function render(ctx, canvas, b1X, b1Y, b2X, b2Y, b3X, b3Y)
-    {
-        positions.push([b3X, b3Y])
-        ctx.clearRect(0, 0, canvas.width, canvas.height);// clears the canvas
-        ctx.beginPath();
-        ctx.arc(b1X,b1Y,10,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
-        ctx.closePath();
-        ctx.fillStyle="red";
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(b2X,b2Y,3,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
-        ctx.closePath();
-        ctx.fillStyle="black";
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(b3X,b3Y,1,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
-        ctx.closePath();
-        ctx.fillStyle="black";
-        ctx.fill();
-
-        for(i = 0; i < positions.length; i++)
-        {
-            ctx.beginPath();
-            ctx.arc(positions[i][0],positions[i][1],1,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
-            ctx.closePath();
-            ctx.fillStyle="black";
-            ctx.fill();
-        }
-    }
 </script>
 </head>
 
 
 <body onLoad="loaded()">
-<canvas id="myCanvas" width="1000" height="1000"></canvas>
+<canvas id="myCanvas" width="1800" height="1000"></canvas>
 </body>
 <body>
     <p>
@@ -288,6 +280,18 @@
         </label>
         <label for="txtYVel">Y velocity</label>
         <input type="text" name="txtYVel" id="txtYVel">
+        <label for="txt2">
+            <br>
+            <br>
+        </label>
+        <label for="txtMass">Mass</label>
+        <input type="text" name="txtMass" id="txtMass">
+        <label for="txt2">
+            <br>
+            <br>
+        </label>
+        <label for="txtRad">radius</label>
+        <input type="text" name="txtRad" id="txtRad">
         <label for="txt2">
             <br>
             <br>
