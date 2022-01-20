@@ -1,0 +1,23 @@
+body 
+{
+    background-color: #000000;
+}
+p 
+{
+    color: #ffffff;
+    font-family: Ubuntu, monospace;
+    font-size: 150%;
+}
+input[type=text] 
+{
+    background-color: #ffffff;
+    border-color: #ffffff;
+    color: #000000;
+}
+input[type=button] 
+{
+    font-size: 150%;
+    background-color: #ffffff;
+    border-color: #ffffff;
+    color: #000000;
+}

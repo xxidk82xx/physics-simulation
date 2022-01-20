@@ -1,8 +1,8 @@
 <!doctype html>
 <html>
 <head>
-
-<title>Drawing</title>
+<title>physics</title>
+<link href="styles.css" rel="stylesheet">
 <script>
     //global variables
     let id
@@ -26,8 +26,7 @@
                     body1X,                             //X position of body 1
                     body1Y,                             //Y position of body 1
                     10,                                 //diameter of object
-                    '#ff0000',                          //colour of object
-                    true                                //is fixed
+                    '#ff0000'                           //colour of object
                 ],
                 [
                     (Math.pow(10, 13) * 1),             //mass of body 2
@@ -36,8 +35,7 @@
                     body2X,                             //X position of body 2
                     body2Y,                             //Y position of body 2
                     5,                                  //diameter of object
-                    '#000000',                          //colour of object
-                    false                               //is fixed
+                    '#ffffff'                           //colour of object
                 ],
                 [
                     (Math.pow(10, 1) * 1.9695346),      //mass of body 3
@@ -46,8 +44,7 @@
                     body3X,                             //X position of body 3
                     body3Y,                             //Y position of body 3
                     1,                                  //diameter of object
-                    '#000000',                          //colour of object
-                    false                               //is fixed
+                    '#ffffff'                           //colour of object
                 ]
             ]
             this.ctx = ctx;
@@ -55,15 +52,15 @@
             this.Gconst = Math.pow(10, -11) * 6.67408
             this.render(this.ctx, this.canvas);//renders all of the objects
         }
-        timestep()
+        timestep()//runs every frame to update positions
         {
             
             
             this.render(this.ctx, this.canvas);//renders all of the objects
             
-            for(this.i = 0; this.i < this.infB.length; this.i++)
+            for(this.i = 0; this.i < this.infB.length; this.i++)//body 1
             {
-                for(this.j = 0; this.j < this.infB.length; this.j++)
+                for(this.j = 0; this.j < this.infB.length; this.j++)//body 2
                 {
                     if(this.j != this.i)
                     {
@@ -72,10 +69,10 @@
                         // apply that acceleration to speed
                         this.infB[this.i][1] += acc[0] * deltaTime
                         this.infB[this.i][2] += acc[1] * deltaTime
-                        //check collisions
+                        //check if two bodies are colliding
                         if(this.getDistance(this.infB[this.i][3] - this.infB[this.j][3], this.infB[this.i][4] - this.infB[this.j][4]) <= this.infB[this.i][5] + this.infB[this.j][5])
                         {
-                            this.collision(this.i, this.j);
+                            this.collision(this.i, this.j);//handles the collision
                         }
                     }
                 }
@@ -84,8 +81,8 @@
             // applies the speed to affect the position of the objects
             for(this.i = 0; this.i < this.infB.length; this.i++)
             {
-                if(!this.infB[this.i][7]) this.infB[this.i][3] += this.infB[this.i][1] * deltaTime
-                if(!this.infB[this.i][7]) this.infB[this.i][4] += this.infB[this.i][2] * deltaTime
+                this.infB[this.i][3] += this.infB[this.i][1] * deltaTime
+                this.infB[this.i][4] += this.infB[this.i][2] * deltaTime
             }
         }
         
@@ -106,7 +103,7 @@
             }
         }
 
-        collision(b1, b2)
+        collision(b1, b2)//decides how collisions are handled
         {
             if(this.infB[b1][0] > this.infB[b2][0])//checks what body is bigger
             {
@@ -160,7 +157,7 @@
             return angleRad //returns the angle
         }
         
-        render(ctx, canvas)
+        render(ctx, canvas)//render the planets
         {
             ctx.clearRect(0, 0, canvas.width, canvas.height);// clears the canvas
             for(this.i = 0; this.i < this.infB.length; this.i++)
@@ -211,8 +208,9 @@
             phys.infB.length - 1 < obj//checks if you are trying to add a new object
         ) 
         {//adds new object
+            //adds the new values to the infb array
             phys.infB.push([])
-            obj = phys.infB.length - 1
+            obj = phys.infB.length - 1//sets obj to the right value
             phys.infB[obj].push(
                 
                     parseInt(mass), 
