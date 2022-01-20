@@ -195,6 +195,7 @@
         let posX = document.getElementById('txtXPos').value
         let posY = document.getElementById('txtYPos').value
         let mass = document.getElementById('txtMass').value
+        let colo = document.getElementById('txtcolo').value
         let radi = document.getElementById('txtRad').value
         let obj = document.getElementById('txtObj').value
         if  
@@ -219,7 +220,7 @@
                     parseInt(posX), 
                     parseInt(posY), 
                     parseInt(radi),
-                    '#000000'
+                    colo
                 )
         }
         else
@@ -230,6 +231,7 @@
             if(velY != 'u')phys.infB[obj][2] = parseInt(velY)
             if(posX != 'u')phys.infB[obj][3] = parseInt(posX)
             if(posY != 'u')phys.infB[obj][4] = parseInt(posY)
+            if(radi != 'u')phys.infB[obj][5] = parseInt(radi)
             if(radi != 'u')phys.infB[obj][5] = parseInt(radi)
         }
         phys.render(ctx, canvas)
@@ -289,6 +291,12 @@
             <br>
         </label>
         <label for="txtRad">radius</label>
+        <input type="text" name="txtRad" id="txtRad">
+        <label for="txt2">
+            <br>
+            <br>
+        </label>
+        <label for="txtcol">colour</label>
         <input type="text" name="txtRad" id="txtRad">
         <label for="txt2">
             <br>
