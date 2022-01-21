@@ -7,14 +7,15 @@
     //global variables
     let id
     let start;
-    let deltaTime = 1 / 60
     let phys
     let pause = true
-    let zoom = 1;
+    let zoom = (Math.pow(10, -9) * 2.05);
     let offX = 0;
     let offY = 0;
     let refFrame = [0, 0, 0]
+    let scale = 20;
     const fps = 60
+    let deltaTime = 1 / fps * 1000000
     
     class physics 
     {
@@ -24,30 +25,30 @@
             this.infB = //stores info for all of the bodies
             [
                 [
-                    (Math.pow(10, 16) * 3.978),         //mass of body 1
+                    (Math.pow(10, 30) * 1.989),         //mass of body 1
                     0,                                  //X velocity of body 1
                     0,                                  //Y velocity of body 1
-                    body1X,                             //X position of body 1
-                    body1Y,                             //Y position of body 1
-                    10,                                 //diameter of object
+                    0,                                  //X position of body 1
+                    0,                                  //Y position of body 1
+                    696340000,                             //radius of object
                     '#ff0000'                           //colour of object
                 ],
                 [
-                    (Math.pow(10, 13) * 1),             //mass of body 2
+                    (Math.pow(10, 23) * 3.285),             //mass of body 2
                     0,                                  //X velocity of body 2
-                    (Math.pow(10, 1) * 9.94),           //Y velocity of body 2
-                    body2X,                             //X position of body 2
-                    body2Y,                             //Y position of body 2
-                    5,                                  //diameter of object
+                    -59278,                             //Y velocity of body 2
+                    45736557009,                        //X position of body 2
+                    0,                                  //Y position of body 2
+                    2439700,                             //radius of object
                     '#ffffff'                           //colour of object
                 ],
                 [
-                    (Math.pow(10, 1) * 1.9695346),      //mass of body 3
+                    (Math.pow(10, 24) * 4.867),         //mass of body 3
                     0,                                  //X velocity of body 3
-                    (Math.pow(10, 2) * 1.08),           //Y velocity of body 3
-                    body3X,                             //X position of body 3
-                    body3Y,                             //Y position of body 3
-                    1,                                  //diameter of object
+                    -35204,                              //Y velocity of body 3
+                    107402145692,                                  //X position of body 3
+                    0,                                  //Y position of body 3
+                    6051800,                             //radius of object
                     '#ffffff'                           //colour of object
                 ]
             ]
@@ -56,7 +57,7 @@
             this.Gconst = Math.pow(10, -11) * 6.67408
             refFrame[1] = this.infB[refFrame[0]][3]
             refFrame[2] = this.infB[refFrame[0]][4]
-            this.render(this.ctx, this.canvas);//renders all of the objects
+            this.render();//renders all of the objects
         }
         timestep()//runs every frame to update positions
         {
@@ -172,7 +173,7 @@
             for(this.i = 0; this.i < this.infB.length; this.i++)
             {
                 this.ctx.beginPath();
-                this.ctx.arc((this.infB[this.i][3] - refFrame[1] ) * zoom + offX + this.canvas.width / 2,(this.infB[this.i][4] - refFrame[2]) * zoom + offY + this.canvas.height / 2,this.infB[this.i][5] * zoom,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
+                this.ctx.arc((this.infB[this.i][3] - refFrame[1] ) * zoom + offX + this.canvas.width / 2,(this.infB[this.i][4] - refFrame[2]) * zoom + offY + this.canvas.height / 2,this.infB[this.i][5] * zoom * scale,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
                 this.ctx.closePath();
                 this.ctx.fillStyle=this.infB[this.i][6];
                 this.ctx.fill();
@@ -193,10 +194,10 @@
 		{
 			if(e.keyCode == 90) zoom *= 0.95
 			if(e.keyCode == 88) zoom *= 1.05
-			if(e.keyCode == 87) offY += 3 * zoom
-			if(e.keyCode == 83) offY -= 3 * zoom
-			if(e.keyCode == 68) offX -= 3 * zoom
-			if(e.keyCode == 65) offX += 3 * zoom
+			if(e.keyCode == 87) offY += 3 / zoom
+			if(e.keyCode == 83) offY -= 3 / zoom
+			if(e.keyCode == 68) offX -= 3 / zoom
+			if(e.keyCode == 65) offX += 3 / zoom
             phys.render()
 		});
 
@@ -215,14 +216,20 @@
         let posX = document.getElementById('txtXPos').value
         let posY = document.getElementById('txtYPos').value
         let mass = document.getElementById('txtMass').value
-        let colo = document.getElementById('txtcol').value
+        let scle = document.getElementById('txtScle').value
+        let warp = document.getElementById('txtWarp').value * 1
+        let colo = document.getElementById('txtCol').value
         let radi = document.getElementById('txtRad').value
-        let ref = document.getElementById('txtref').value * 1
+        let ref = document.getElementById('txtRef').value * 1
         let obj = document.getElementById('txtObj').value
         if(ref < phys.infB.length) 
         {
             refFrame[0] = ref
         }
+
+        if(warp != 0) deltaTime = 1 / fps * warp
+        if(scle.length >= 1) scale = parseInt(scle)
+
         if  
         (//checks if inputs are strings
             (parseInt(velX) ||
@@ -251,13 +258,13 @@
         else
         {
             //changes the values of the object to be changed
-            if(mass.length < 1)phys.infB[obj][0] = parseInt(mass)
-            if(velX.length < 1)phys.infB[obj][1] = parseInt(velX)
-            if(velY.length < 1)phys.infB[obj][2] = parseInt(velY)
-            if(posX.length < 1)phys.infB[obj][3] = parseInt(posX)
-            if(posY.length < 1)phys.infB[obj][4] = parseInt(posY)
-            if(radi.length < 1)phys.infB[obj][5] = parseInt(radi)
-            if(colo.length < 1)phys.infB[obj][6] = parseInt(colo)
+            if(mass.length >= 1)phys.infB[obj][0] = parseInt(mass)
+            if(velX.length >= 1)phys.infB[obj][1] = parseInt(velX)
+            if(velY.length >= 1)phys.infB[obj][2] = parseInt(velY)
+            if(posX.length >= 1)phys.infB[obj][3] = parseInt(posX)
+            if(posY.length >= 1)phys.infB[obj][4] = parseInt(posY)
+            if(radi.length >= 1)phys.infB[obj][5] = parseInt(radi)
+            if(colo.length >= 1)phys.infB[obj][6] = parseInt(colo)
         }
         phys.render()
     }
@@ -265,6 +272,7 @@
     function btnPause()
     {
         pause = !pause//pauses the simulation
+        phys.render()
     }
 
 </script>
@@ -321,14 +329,26 @@
             <br>
             <br>
         </label>
-        <label for="txtcol">colour</label>
-        <input type="text" name="txtcol" id="txtcol">
+        <label for="txtCol">colour</label>
+        <input type="text" name="txtCol" id="txtCol">
         <label for="txt2">
             <br>
             <br>
         </label>
-        <label for="txtref">reference frame</label>
-        <input type="text" name="txtref" id="txtref">
+        <label for="txtRef">reference frame</label>
+        <input type="text" name="txtRef" id="txtRef">
+        <label for="txt2">
+            <br>
+            <br>
+        </label>
+        <label for="txtWrp">time warp(makes physics less precise)</label>
+        <input type="text" name="txtWrp" id="txtWarp">
+        <label for="txt2">
+            <br>
+            <br>
+        </label>
+        <label for="txtScle">scale(only affects looks)</label>
+        <input type="text" name="txtScle" id="txtScle">
         <label for="txt2">
             <br>
             <br>
