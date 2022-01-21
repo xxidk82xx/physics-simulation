@@ -10,6 +10,10 @@
     let deltaTime = 1 / 60
     let phys
     let pause = true
+    let zoom = 1;
+    let offX = 0;
+    let offY = 0;
+    let refFrame = [0, 0, 0]
     const fps = 60
     
     class physics 
@@ -50,13 +54,15 @@
             this.ctx = ctx;
             this.canvas = canvas;
             this.Gconst = Math.pow(10, -11) * 6.67408
+            refFrame[1] = this.infB[refFrame[0]][3]
+            refFrame[2] = this.infB[refFrame[0]][4]
             this.render(this.ctx, this.canvas);//renders all of the objects
         }
         timestep()//runs every frame to update positions
         {
             
             
-            this.render(this.ctx, this.canvas);//renders all of the objects
+            this.render();//renders all of the objects
             
             for(this.i = 0; this.i < this.infB.length; this.i++)//body 1
             {
@@ -84,6 +90,9 @@
                 this.infB[this.i][3] += this.infB[this.i][1] * deltaTime
                 this.infB[this.i][4] += this.infB[this.i][2] * deltaTime
             }
+            refFrame[1] = this.infB[refFrame[0]][3]
+            refFrame[2] = this.infB[refFrame[0]][4]
+
         }
         
         gravity(b1, b2)//calculates x and y accelerations of gravity
@@ -157,16 +166,16 @@
             return angleRad //returns the angle
         }
         
-        render(ctx, canvas)//render the planets
+        render()//render the planets
         {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);// clears the canvas
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);// clears the canvas
             for(this.i = 0; this.i < this.infB.length; this.i++)
             {
-                ctx.beginPath();
-                ctx.arc(this.infB[this.i][3],this.infB[this.i][4],this.infB[this.i][5],0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
-                ctx.closePath();
-                ctx.fillStyle=this.infB[this.i][6];
-                ctx.fill();
+                this.ctx.beginPath();
+                this.ctx.arc((this.infB[this.i][3] - refFrame[1] ) * zoom + offX + this.canvas.width / 2,(this.infB[this.i][4] - refFrame[2]) * zoom + offY + this.canvas.height / 2,this.infB[this.i][5] * zoom,0,2*Math.PI); // parameters are x,y,radius,starting angle in radians, ending angle in radians, 
+                this.ctx.closePath();
+                this.ctx.fillStyle=this.infB[this.i][6];
+                this.ctx.fill();
             }
         }
         
@@ -178,8 +187,19 @@
         //code goes here
         canvas=document.getElementById("myCanvas")
         ctx=canvas.getContext("2d")
-        phys = new physics(ctx, canvas, 400, 400, 694, 400, 684, 400)//initialises the physics engine
+        phys = new physics(ctx, canvas, 0, 0, 294, 0, 284, 0)//initialises the physics engine
         
+        window.addEventListener('keydown', function(e)
+		{
+			if(e.keyCode == 90) zoom *= 0.95
+			if(e.keyCode == 88) zoom *= 1.05
+			if(e.keyCode == 87) offY += 3 * zoom
+			if(e.keyCode == 83) offY -= 3 * zoom
+			if(e.keyCode == 68) offX -= 3 * zoom
+			if(e.keyCode == 65) offX += 3 * zoom
+            phys.render()
+		});
+
         id = setInterval(update,1000/fps);//fps = framerate
 	}//end of code
     function update()
@@ -197,7 +217,12 @@
         let mass = document.getElementById('txtMass').value
         let colo = document.getElementById('txtcol').value
         let radi = document.getElementById('txtRad').value
+        let ref = document.getElementById('txtref').value * 1
         let obj = document.getElementById('txtObj').value
+        if(ref < phys.infB.length) 
+        {
+            refFrame[0] = ref
+        }
         if  
         (//checks if inputs are strings
             (parseInt(velX) ||
@@ -226,15 +251,15 @@
         else
         {
             //changes the values of the object to be changed
-            if(mass != 'u')phys.infB[obj][0] = parseInt(mass)
-            if(velX != 'u')phys.infB[obj][1] = parseInt(velX)
-            if(velY != 'u')phys.infB[obj][2] = parseInt(velY)
-            if(posX != 'u')phys.infB[obj][3] = parseInt(posX)
-            if(posY != 'u')phys.infB[obj][4] = parseInt(posY)
-            if(radi != 'u')phys.infB[obj][5] = parseInt(radi)
-            if(colo != 'u')phys.infB[obj][6] = parseInt(colo)
+            if(mass.length < 1)phys.infB[obj][0] = parseInt(mass)
+            if(velX.length < 1)phys.infB[obj][1] = parseInt(velX)
+            if(velY.length < 1)phys.infB[obj][2] = parseInt(velY)
+            if(posX.length < 1)phys.infB[obj][3] = parseInt(posX)
+            if(posY.length < 1)phys.infB[obj][4] = parseInt(posY)
+            if(radi.length < 1)phys.infB[obj][5] = parseInt(radi)
+            if(colo.length < 1)phys.infB[obj][6] = parseInt(colo)
         }
-        phys.render(ctx, canvas)
+        phys.render()
     }
 
     function btnPause()
@@ -298,6 +323,12 @@
         </label>
         <label for="txtcol">colour</label>
         <input type="text" name="txtcol" id="txtcol">
+        <label for="txt2">
+            <br>
+            <br>
+        </label>
+        <label for="txtref">reference frame</label>
+        <input type="text" name="txtref" id="txtref">
         <label for="txt2">
             <br>
             <br>
