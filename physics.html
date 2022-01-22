@@ -12,7 +12,7 @@
     let zoom = (Math.pow(10, -9) * 2.05);
     let offX = 0;
     let offY = 0;
-    let refFrame = [0, 0, 0]
+    let refFrame = [0, 0, 0, 0, 0]
     let scale = 1;
     const fps = 60
     let deltaTime = 1 / fps * 1000000
@@ -32,7 +32,7 @@
                     0,                                  //Y position of body 1
                     696340000,                             //radius of object
                     '#ff0000',                           //colour of object
-                    1,
+                    1,                                  //scale of object
                 ],
                 [//mercury
                     (Math.pow(10, 23) * 3.285),             //mass of body 2
@@ -42,7 +42,7 @@
                     0,                                  //Y position of body 2
                     2439700,                             //radius of object
                     '#ffffff',                           //colour of object
-                    20
+                    20                                  //scale of object
                 ],
                 [//venus
                     (Math.pow(10, 24) * 4.867),         //mass of body 3
@@ -52,7 +52,7 @@
                     0,                                  //Y position of body 3
                     6051800,                             //radius of object
                     '##c18f17',                           //colour of object
-                    20
+                    20                                  //scale of object
                 ],
                 [//earth
                     (Math.pow(10, 24) * 5.972),         //mass of body 3
@@ -62,7 +62,7 @@
                     0,                                  //Y position of body 3
                     6371000,                             //radius of object
                     '#00ff00',                           //colour of object
-                    20
+                    20                                  //scale of object
                 ],
                 [//mars
                     (Math.pow(10, 23) * 6.39),         //mass of body 3
@@ -72,7 +72,7 @@
                     206670355959,                                  //Y position of body 3
                     3389500,                             //radius of object
                     '#bc2732',                           //colour of object
-                    40
+                    40                                  //scale of object
                 ],
                 [//moon
                 (Math.pow(10, 22) * 7.34767309),         //mass of body 3
@@ -82,7 +82,7 @@
                     0,                                  //Y position of body 3
                     3389500,                             //radius of object
                     '#383838',                           //colour of object
-                    20
+                    20                                  //scale of object
                 ]
             ]
             this.ctx = ctx;
@@ -126,6 +126,8 @@
             }
             refFrame[1] = this.infB[refFrame[0]][3]
             refFrame[2] = this.infB[refFrame[0]][4]
+            refFrame[3] = this.infB[refFrame[0]][1]
+            refFrame[4] = this.infB[refFrame[0]][2]
 
         }
         
@@ -227,10 +229,10 @@
 		{
 			if(e.keyCode == 90) zoom *= 0.95
 			if(e.keyCode == 88) zoom *= 1.05
-			if(e.keyCode == 87) offY += 3 / zoom
-			if(e.keyCode == 83) offY -= 3 / zoom
-			if(e.keyCode == 68) offX -= 3 / zoom
-			if(e.keyCode == 65) offX += 3 / zoom
+			if(e.keyCode == 87) offY += 3 // zoom
+			if(e.keyCode == 83) offY -= 3 // zoom
+			if(e.keyCode == 68) offX -= 3 // zoom
+			if(e.keyCode == 65) offX += 3 // zoom
             phys.render()
 		});
 
@@ -239,6 +241,26 @@
     function update()
     {
         if(!pause)phys.timestep()//check if game is paused
+    }
+
+    function warpSet()
+    {
+        let warp = document.getElementById('txtWarp').value * 1
+        if(warp != 0) deltaTime = 1 / fps * warp
+    }
+
+    function rffSet()
+    {
+        let ref = document.getElementById('txtRef').value * 1
+        if(ref < phys.infB.length) 
+        {
+            refFrame[0] = ref
+        }
+        refFrame[1] = phys.infB[refFrame[0]][3]
+        refFrame[2] = phys.infB[refFrame[0]][4]
+        refFrame[3] = phys.infB[refFrame[0]][1]
+        refFrame[4] = phys.infB[refFrame[0]][2]
+        phys.render()
     }
 
     function objAdd()
@@ -250,26 +272,20 @@
         let posY = document.getElementById('txtYPos').value
         let mass = document.getElementById('txtMass').value
         let scle = document.getElementById('txtScle').value
-        let warp = document.getElementById('txtWarp').value * 1
         let colo = document.getElementById('txtCol').value
         let radi = document.getElementById('txtRad').value
-        let ref = document.getElementById('txtRef').value * 1
         let obj = document.getElementById('txtObj').value
-        if(ref < phys.infB.length) 
-        {
-            refFrame[0] = ref
-        }
-
-        if(warp != 0) deltaTime = 1 / fps * warp
 
         if  
         (//checks if inputs are strings
-            (parseInt(velX) ||
-            parseInt(velY) ||
-            parseInt(posX) ||
-            parseInt(posY) ||
-            parseInt(mass) ||
-            parseInt(radi)) &&
+            (
+                parseInt(velX) >= 0 ||
+                parseInt(velY) >= 0 ||
+                parseInt(posX) >= 0 ||
+                parseInt(posY) >= 0 ||
+                parseInt(mass) >= 0 ||
+                parseInt(radi) >= 0
+            ) &&
             phys.infB.length - 1 < obj//checks if you are trying to add a new object
         ) 
         {//adds new object
@@ -277,32 +293,30 @@
             phys.infB.push([])
             obj = phys.infB.length - 1//sets obj to the right value
             phys.infB[obj].push(
-                
                     parseInt(mass), 
-                    parseInt(velX), 
-                    parseInt(velY), 
-                    parseInt(posX), 
-                    parseInt(posY), 
+                    parseInt(velX) + refFrame[3], 
+                    parseInt(velY) + refFrame[4], 
+                    parseInt(posX) + refFrame[1], 
+                    parseInt(posY) + refFrame[2], 
                     parseInt(radi),
                     colo,
                     parseInt(scle),
                 )
         }
-        else
+        else if(phys.infB.length > obj)
         {
             //changes the values of the object to be changed
             if(mass.length >= 1)phys.infB[obj][0] = parseInt(mass)
-            if(velX.length >= 1)phys.infB[obj][1] = parseInt(velX)
-            if(velY.length >= 1)phys.infB[obj][2] = parseInt(velY)
-            if(posX.length >= 1)phys.infB[obj][3] = parseInt(posX)
-            if(posY.length >= 1)phys.infB[obj][4] = parseInt(posY)
+            if(velX.length >= 1)phys.infB[obj][1] = parseInt(velX) + refFrame[3]
+            if(velY.length >= 1)phys.infB[obj][2] = parseInt(velY) + refFrame[4]
+            if(posX.length >= 1)phys.infB[obj][3] = parseInt(posX) + refFrame[1]
+            if(posY.length >= 1)phys.infB[obj][4] = parseInt(posY) + refFrame[2]
             if(radi.length >= 1)phys.infB[obj][5] = parseInt(radi)
-            if(colo.length >= 1)phys.infB[obj][6] = parseInt(colo)
             if(scle.length >= 1)phys.infB[obj][7] = parseInt(scle)
+            if(colo.length >= 1)phys.infB[obj][6] = colo
 
         }
-        refFrame[1] = phys.infB[refFrame[0]][3]
-        refFrame[2] = phys.infB[refFrame[0]][4]
+        
         phys.render()
     }
 
@@ -331,22 +345,18 @@
         <label for="txtXPos">X position</label>
         <input type="text" name="txtXPos" id="txtXPos">
         <label for="txt2">
-            <br>
-            <br>
         </label>
 
         <label for="txtYPos">Y position</label>
         <input type="text" name="txtYPos" id="txtYPos">
         <label for="txt2">
             <br>
-            <br>
+            <br>    
         </label>
 
         <label for="txtXVel">X velocity</label>
         <input type="text" name="txtXVel" id="txtXVel">
         <label for="txt2">
-            <br>
-          <br>
         </label>
         <label for="txtYVel">Y velocity</label>
         <input type="text" name="txtYVel" id="txtYVel">
@@ -357,8 +367,6 @@
         <label for="txtMass">Mass</label>
         <input type="text" name="txtMass" id="txtMass">
         <label for="txt2">
-            <br>
-            <br>
         </label>
         <label for="txtRad">radius</label>
         <input type="text" name="txtRad" id="txtRad">
@@ -369,12 +377,14 @@
         <label for="txtCol">colour</label>
         <input type="text" name="txtCol" id="txtCol">
         <label for="txt2">
-            <br>
-            <br>
         </label>
-        <label for="txtRef">reference frame</label>
-        <input type="text" name="txtRef" id="txtRef">
+        <label for="txtScle">scale(only affects looks)</label>
+        <input type="text" name="txtScle" id="txtScle">
         <label for="txt2">
+            <br>
+            <br>
+            <br>
+            <br>
             <br>
             <br>
         </label>
@@ -384,15 +394,17 @@
             <br>
             <br>
         </label>
-        <label for="txtScle">scale(only affects looks)</label>
-        <input type="text" name="txtScle" id="txtScle">
+        <label for="txtRef">reference frame</label>
+        <input type="text" name="txtRef" id="txtRef">
         <label for="txt2">
             <br>
             <br>
         </label>
     </p>
     
-      <input onClick="objAdd()" type="button" name="button" id="button" value="set">
+      <input onClick="rffSet()" type="button" name="button" id="button" value="set reference frame">
+      <input onClick="objAdd()" type="button" name="button" id="button" value="set object parameters">
+      <input onClick="warpSet()" type="button" name="button" id="button" value="set time warp">
     </p>
     </p>
 
