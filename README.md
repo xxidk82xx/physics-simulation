@@ -8,4 +8,3 @@ S move camera down
 D move camera right  
 Z zoom out  
 X zoom in  
-  
