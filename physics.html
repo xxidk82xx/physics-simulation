@@ -283,11 +283,11 @@
         
         window.addEventListener('keydown', function(e)
 		{
-			if(e.keyCode == 90) zoom *= 0.95
-			if(e.keyCode == 88) zoom *= 1.05
-			if(e.keyCode == 87) offY += 3 // zoom
-			if(e.keyCode == 83) offY -= 3 // zoom
-			if(e.keyCode == 68) offX -= 3 // zoom
+			if(e.keyCode == 88 || e.keyCode == 81) zoom *= 0.95
+			if(e.keyCode == 90 || e.keyCode == 90) zoom *= 1.05
+			if(e.keyCode == 87 || e.keyCode == 188) offY += 3 // zoom
+			if(e.keyCode == 83 || e.keyCode == 79) offY -= 3 // zoom
+			if(e.keyCode == 68 || e.keyCode == 69) offX -= 3 // zoom
 			if(e.keyCode == 65) offX += 3 // zoom
             phys.render()
 		});
