@@ -80,8 +80,8 @@
                     -31377,                              //Y velocity of body 3
                     147458090281,                                  //X position of body 3
                     0,                                  //Y position of body 3
-                    '#383838',                           //colour of object
                     3389500,                             //radius of object
+                    '#383838',                           //colour of object
                     20                                  //scale of object
                 ]
             ]
@@ -136,7 +136,7 @@
             const acc = this.getAcc(this.infB[b1][0], this.infB[b1][3], this.infB[b1][4], this.infB[b2][3], this.infB[b2][4])//get acceleration
             const angle = this.getAngle(this.infB[b1][3], this.infB[b1][4], this.infB[b2][3], this.infB[b2][4])//get angle
 
-            //convert angle and acceleration to x and y acceleration
+            //convert angle and acceleration to angle
             if(angle >= 0)
             {
                 return [acc * Math.cos(angle) * -1, //x acceleration
@@ -150,35 +150,19 @@
 
         collision(b1, b2)//decides how collisions are handled
         {
-            //get the 2 objects velocities
-            let obj1V = Math.sqrt((this.infB[b2][1] * this.infB[b2][1]) + (this.infB[b2][2] * this.infB[b2][2]))
-            let obj2V = Math.sqrt((this.infB[b1][1] * this.infB[b1][1]) + (this.infB[b1][2] * this.infB[b1][2]))
             if(this.infB[b1][0] > this.infB[b2][0])//checks what body is bigger
             {
-                //add the 2 objects energies
-                let obj1E = obj1V * this.infB[b1][1] + obj1V * this.infB[b2][1]
-
                 this.infB[b1][0] += this.infB[b2][0]//adds the bodies mass
                 this.infB[b1][5] = Math.sqrt((this.infB[b2][5] * this.infB[b2][5]) + (this.infB[b1][5] * this.infB[b1][5]))//adds the bodies 
                 //this.infB[b2][5] += this.infB[b1][5]
                 this.infB.splice(b2,1)
-
-                //get final velocity
-                obj1V = obj1E / this.infB[b1][0]
             }
             else
             {
-                //add the 2 objects energies
-                let obj2E = obj2V * this.infB[b2][1] + obj1V * this.infB[b1][1]
-
                 this.infB[b2][0] += this.infB[b1][0]
                 this.infB[b2][5] = Math.sqrt((this.infB[b2][5] * this.infB[b2][5]) + (this.infB[b1][5] * this.infB[b1][5]))
                 //this.infB[b2][5] += this.infB[b1][5]
                 this.infB.splice(b1,1)
-
-                //get final velocity
-                obj2V = obj2E / this.infB[b2][0]
-                
             }
         }
 
