@@ -214,6 +214,62 @@
                 this.ctx.fill();
             }
         }
+        newObj()
+        {
+            //gets values from text boxes
+            let velX = document.getElementById('txtXVel').value
+            let velY = document.getElementById('txtYVel').value
+            let posX = document.getElementById('txtXPos').value
+            let posY = document.getElementById('txtYPos').value
+            let mass = document.getElementById('txtMass').value
+            let scle = document.getElementById('txtScle').value
+            let colo = document.getElementById('txtCol').value
+            let radi = document.getElementById('txtRad').value
+            let obj = document.getElementById('txtObj').value
+
+            if  
+            (//checks if inputs are strings
+                (
+                    parseInt(velX) >= 0 ||
+                    parseInt(velY) >= 0 ||
+                    parseInt(posX) >= 0 ||
+                    parseInt(posY) >= 0 ||
+                    parseInt(mass) >= 0 ||
+                    parseInt(radi) >= 0
+                ) &&
+                this.infB.length - 1 < obj//checks if you are trying to add a new object
+            ) 
+            {//adds new object
+                //adds the new values to the infb array
+                this.infB.push([])
+                obj = this.infB.length - 1//sets obj to the right value
+                this.infB[obj].push(
+                        parseInt(mass), 
+                        parseInt(velX) + refFrame[3], 
+                        parseInt(velY) + refFrame[4], 
+                        parseInt(posX) + refFrame[1], 
+                        parseInt(posY) + refFrame[2], 
+                        parseInt(radi),
+                        colo,
+                        parseInt(scle),
+                    )
+            }
+            else if(this.infB.length > obj)
+            {
+                //changes the values of the object to be changed
+                if(mass.length >= 1)this.infB[obj][0] = parseInt(mass)
+                if(velX.length >= 1)this.infB[obj][1] = parseInt(velX) + refFrame[3]
+                if(velY.length >= 1)this.infB[obj][2] = parseInt(velY) + refFrame[4]
+                if(posX.length >= 1)this.infB[obj][3] = parseInt(posX) + refFrame[1]
+                if(posY.length >= 1)this.infB[obj][4] = parseInt(posY) + refFrame[2]
+                if(radi.length >= 1)this.infB[obj][5] = parseInt(radi)
+                if(scle.length >= 1)this.infB[obj][7] = parseInt(scle)
+                if(colo.length >= 1)this.infB[obj][6] = colo
+
+            }
+
+            this.render()
+        }
         
     }
     
@@ -243,6 +299,11 @@
         if(!pause)phys.timestep()//check if game is paused
     }
 
+    function objAdd()
+    {
+        phys.newObj();
+    }
+
     function warpSet()
     {
         let warp = document.getElementById('txtWarp').value * 1
@@ -260,63 +321,6 @@
         refFrame[2] = phys.infB[refFrame[0]][4]
         refFrame[3] = phys.infB[refFrame[0]][1]
         refFrame[4] = phys.infB[refFrame[0]][2]
-        phys.render()
-    }
-
-    function objAdd()
-    {
-        //gets values from text boxes
-        let velX = document.getElementById('txtXVel').value
-        let velY = document.getElementById('txtYVel').value
-        let posX = document.getElementById('txtXPos').value
-        let posY = document.getElementById('txtYPos').value
-        let mass = document.getElementById('txtMass').value
-        let scle = document.getElementById('txtScle').value
-        let colo = document.getElementById('txtCol').value
-        let radi = document.getElementById('txtRad').value
-        let obj = document.getElementById('txtObj').value
-
-        if  
-        (//checks if inputs are strings
-            (
-                parseInt(velX) >= 0 ||
-                parseInt(velY) >= 0 ||
-                parseInt(posX) >= 0 ||
-                parseInt(posY) >= 0 ||
-                parseInt(mass) >= 0 ||
-                parseInt(radi) >= 0
-            ) &&
-            phys.infB.length - 1 < obj//checks if you are trying to add a new object
-        ) 
-        {//adds new object
-            //adds the new values to the infb array
-            phys.infB.push([])
-            obj = phys.infB.length - 1//sets obj to the right value
-            phys.infB[obj].push(
-                    parseInt(mass), 
-                    parseInt(velX) + refFrame[3], 
-                    parseInt(velY) + refFrame[4], 
-                    parseInt(posX) + refFrame[1], 
-                    parseInt(posY) + refFrame[2], 
-                    parseInt(radi),
-                    colo,
-                    parseInt(scle),
-                )
-        }
-        else if(phys.infB.length > obj)
-        {
-            //changes the values of the object to be changed
-            if(mass.length >= 1)phys.infB[obj][0] = parseInt(mass)
-            if(velX.length >= 1)phys.infB[obj][1] = parseInt(velX) + refFrame[3]
-            if(velY.length >= 1)phys.infB[obj][2] = parseInt(velY) + refFrame[4]
-            if(posX.length >= 1)phys.infB[obj][3] = parseInt(posX) + refFrame[1]
-            if(posY.length >= 1)phys.infB[obj][4] = parseInt(posY) + refFrame[2]
-            if(radi.length >= 1)phys.infB[obj][5] = parseInt(radi)
-            if(scle.length >= 1)phys.infB[obj][7] = parseInt(scle)
-            if(colo.length >= 1)phys.infB[obj][6] = colo
-
-        }
-        
         phys.render()
     }
 
